@@ -18,7 +18,11 @@ function Avatar({ src, size = 48, online = false, className = "", alt = "avatar"
         }}
       />
       {online && (
-        <span className="absolute bottom-0.5 right-0.5 h-3 w-3 rounded-full border-2 border-white bg-emerald-400 shadow" />
+        <span
+          className="absolute bottom-0 right-0 z-10 h-3.5 w-3.5 rounded-full border-2 border-white bg-emerald-400 shadow-md ring-1 ring-emerald-500/30"
+          title="Online"
+          aria-label="Online"
+        />
       )}
     </div>
   );

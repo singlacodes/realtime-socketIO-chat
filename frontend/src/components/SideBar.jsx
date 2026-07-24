@@ -15,6 +15,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import Avatar from "./Avatar";
 import { formatListSubtitle } from "../utils/formatTime";
+import { isUserOnline } from "../utils/online";
 
 function SideBar() {
   const { userData, otherUsers, selectedUser, onlineUsers, searchData } =
@@ -26,7 +27,7 @@ function SideBar() {
 
   const onlineCount = useMemo(
     () =>
-      (otherUsers || []).filter((u) => onlineUsers?.includes(u._id)).length,
+      (otherUsers || []).filter((u) => isUserOnline(onlineUsers, u._id)).length,
     [otherUsers, onlineUsers]
   );
 
@@ -124,7 +125,7 @@ function SideBar() {
                 <IoIosSearch className="h-6 w-6" />
               </button>
               {(otherUsers || [])
-                .filter((u) => onlineUsers?.includes(u._id))
+                .filter((u) => isUserOnline(onlineUsers, u._id))
                 .map((user) => (
                   <button
                     type="button"
@@ -183,7 +184,7 @@ function SideBar() {
                 <Avatar
                   src={user.image}
                   size={48}
-                  online={onlineUsers?.includes(user._id)}
+                  online={isUserOnline(onlineUsers, user._id)}
                 />
                 <div className="min-w-0">
                   <p className="truncate font-semibold text-ink-800">
@@ -209,7 +210,7 @@ function SideBar() {
             </div>
           ) : (
             otherUsers.map((user) => {
-              const isOnline = onlineUsers?.includes(user._id);
+              const isOnline = isUserOnline(onlineUsers, user._id);
               const active = selectedUser?._id === user._id;
               return (
                 <button

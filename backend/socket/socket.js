@@ -1,10 +1,10 @@
-import http from "http"
-import express from "express"
-import { Server } from "socket.io"
+import http from "http";
+import express from "express";
+import { Server } from "socket.io";
 
-let app = express()
+let app = express();
 
-const server = http.createServer(app)
+const server = http.createServer(app);
 
 const clientOrigins = (
   process.env.CLIENT_URL ||
@@ -12,31 +12,58 @@ const clientOrigins = (
 )
   .split(",")
   .map((o) => o.trim())
-  .filter(Boolean)
+  .filter(Boolean);
 
 const io = new Server(server, {
   cors: {
     origin: clientOrigins,
     credentials: true,
+    methods: ["GET", "POST"],
   },
-})
+});
 
-const userSocketMap = {}
+// userId (string) -> socket.id
+const userSocketMap = {};
+
 export const getReceiverSocketId = (receiver) => {
-  return userSocketMap[receiver]
-}
+  if (receiver == null) return undefined;
+  return userSocketMap[String(receiver)];
+};
+
+const getOnlineUserIds = () => Object.keys(userSocketMap);
+
+const broadcastOnlineUsers = () => {
+  io.emit("getOnlineUsers", getOnlineUserIds());
+};
 
 io.on("connection", (socket) => {
-  const userId = socket.handshake.query.userId
-  if (userId != undefined) {
-    userSocketMap[userId] = socket.id
+  const raw = socket.handshake.query?.userId;
+  const userId =
+    raw != null && raw !== "" && String(raw) !== "undefined"
+      ? String(raw)
+      : null;
+
+  if (userId) {
+    // If user reconnects, replace old socket mapping
+    userSocketMap[userId] = socket.id;
+    socket.data.userId = userId;
   }
-  io.emit("getOnlineUsers", Object.keys(userSocketMap))
+
+  // Tell everyone (including this client) who is online
+  broadcastOnlineUsers();
+
+  // Client can re-request after attaching listeners (avoids race)
+  socket.on("requestOnlineUsers", () => {
+    socket.emit("getOnlineUsers", getOnlineUserIds());
+  });
 
   socket.on("disconnect", () => {
-    delete userSocketMap[userId]
-    io.emit("getOnlineUsers", Object.keys(userSocketMap))
-  })
-})
+    const id = socket.data.userId || userId;
+    if (id && userSocketMap[id] === socket.id) {
+      delete userSocketMap[id];
+    }
+    broadcastOnlineUsers();
+  });
+});
 
-export { app, server, io }
+export { app, server, io };

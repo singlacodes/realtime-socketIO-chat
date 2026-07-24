@@ -14,6 +14,7 @@ import axios from "axios";
 import { serverUrl } from "../main";
 import { appendMessage } from "../redux/messageSlice";
 import Avatar from "./Avatar";
+import { isUserOnline, toId } from "../utils/online";
 
 function MessageArea() {
   const { selectedUser, userData, socket, onlineUsers } = useSelector(
@@ -29,7 +30,7 @@ function MessageArea() {
   const image = useRef();
   const bottomRef = useRef();
 
-  const isOnline = selectedUser && onlineUsers?.includes(selectedUser._id);
+  const isOnline = selectedUser && isUserOnline(onlineUsers, selectedUser._id);
 
   const clearImage = () => {
     setFrontendImage(null);
@@ -78,8 +79,8 @@ function MessageArea() {
       // Only append if it belongs to the open chat
       if (
         selectedUser &&
-        (mess.sender === selectedUser._id ||
-          mess.receiver === selectedUser._id)
+        (toId(mess.sender) === toId(selectedUser._id) ||
+          toId(mess.receiver) === toId(selectedUser._id))
       ) {
         dispatch(appendMessage(mess));
       }
@@ -143,7 +144,7 @@ function MessageArea() {
           </div>
         ) : (
           (messages || []).map((mess) =>
-            mess.sender === userData._id || mess.sender?._id === userData._id ? (
+            toId(mess.sender) === toId(userData._id) ? (
               <SenderMessage
                 key={mess._id}
                 image={mess.image}
