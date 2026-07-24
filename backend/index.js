@@ -17,7 +17,7 @@ const __dirname = path.dirname(__filename)
 
 
 app.use(cors({
-    origin:"http://localhost:5173",
+    origin:"https://realtime-socketio-chat-mgz8.onrender.com",
     credentials:true
 }))
 app.use(express.json())
