@@ -1,62 +1,141 @@
-import axios from 'axios'
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { serverUrl } from '../main'
-import { useDispatch, useSelector } from 'react-redux'
-import { setUserData } from '../redux/userSlice'
+import axios from "axios";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { serverUrl } from "../main";
+import { useDispatch } from "react-redux";
+import { setUserData } from "../redux/userSlice";
+import { IoEyeOutline, IoEyeOffOutline } from "react-icons/io5";
 
 function SignUp() {
-    let navigate=useNavigate()
-    let [show,setShow]=useState(false)
-let [userName,setUserName]=useState("")
-let [email,setEmail]=useState("")
-let [password,setPassword]=useState("")
-let [loading,setLoading]=useState(false)
-let [err,setErr]=useState("")
-let dispatch=useDispatch()
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [show, setShow] = useState(false);
+  const [userName, setUserName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState("");
 
-    const handleSignUp=async (e)=>{
-        e.preventDefault()
-        setLoading(true)
-        try {
-            let result =await axios.post(`${serverUrl}/api/auth/signup`,{
-userName,email,password
-            },{withCredentials:true})
-           dispatch(setUserData(result.data))
-           navigate("/profile")
-            setEmail("")
-            setPassword("")
-            setLoading(false)
-            setErr("")
-        } catch (error) {
-            console.log(error)
-            setLoading(false)
-            setErr(error?.response?.data?.message)
-        }
+  const handleSignUp = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setErr("");
+    try {
+      const result = await axios.post(
+        `${serverUrl}/api/auth/signup`,
+        { userName, email, password },
+        { withCredentials: true }
+      );
+      dispatch(setUserData(result.data));
+      navigate("/profile");
+      setEmail("");
+      setPassword("");
+      setUserName("");
+    } catch (error) {
+      setErr(error?.response?.data?.message || "Signup failed. Try again.");
+    } finally {
+      setLoading(false);
     }
+  };
 
   return (
-    <div className='w-full h-[100vh] bg-slate-200 flex items-center justify-center'>
-     <div className='w-full max-w-[500px] h-[600px] bg-white rounded-lg shadow-gray-400 shadow-lg flex flex-col gap-[30px]'>
-        <div className='w-full h-[200px] bg-[#20c7ff] rounded-b-[30%] shadow-gray-400 shadow-lg flex items-center justify-center'>
-           <h1 className='text-gray-600 font-bold text-[30px]'>welcome to <span  className='text-white'>chatly</span></h1>
-        </div>
-        <form className='w-full flex flex-col gap-[20px] items-center' onSubmit={handleSignUp}>
+    <div className="relative flex min-h-full items-center justify-center overflow-hidden bg-gradient-to-br from-brand-100 via-ink-50 to-brand-200 px-4 py-10">
+      <div className="pointer-events-none absolute -right-20 top-8 h-64 w-64 rounded-full bg-brand-300/40 blur-3xl" />
+      <div className="pointer-events-none absolute -left-10 bottom-0 h-72 w-72 rounded-full bg-cyan-300/30 blur-3xl" />
 
-        <input type="text" placeholder='username' className='w-[90%] h-[50px] outline-none border-2 border-[#20c7ff] px-[20px] py-[10px] bg-[white] rounded-lg shadow-gray-200 shadow-lg text-gray-700 text-[19px]' onChange={(e)=>setUserName(e.target.value)} value={userName}/>
-        <input type="email" placeholder='email' className='w-[90%] h-[50px] outline-none border-2 border-[#20c7ff] px-[20px] py-[10px] bg-[white] rounded-lg shadow-gray-200 shadow-lg text-gray-700 text-[19px]'  onChange={(e)=>setEmail(e.target.value)} value={email}/>
-        <div className='w-[90%] h-[50px] border-2 border-[#20c7ff] overflow-hidden rounded-lg shadow-gray-200 shadow-lg relative'>
-        <input type={`${show?"text":"password"}`} placeholder='password' className='w-full h-full outline-none  px-[20px] py-[10px] bg-[white]  text-gray-700 text-[19px]'  onChange={(e)=>setPassword(e.target.value)} value={password}/>
-        <span className='absolute top-[10px] right-[20px] text-[19px] text-[#20c7ff] font-semibold cursor-pointer' onClick={()=>setShow(prev=>!prev)}>{`${show?"hidden":"show"}`}</span>
+      <div className="card-shell animate-slide-up relative z-10">
+        <div className="bg-gradient-to-br from-brand-500 to-brand-700 px-8 pb-12 pt-10 text-center text-white">
+          <p className="text-sm font-medium uppercase tracking-[0.2em] text-brand-100">
+            Get started
+          </p>
+          <h1 className="mt-2 text-3xl font-extrabold tracking-tight">
+            Join <span className="text-white">Chatly</span>
+          </h1>
+          <p className="mt-2 text-sm text-brand-100">
+            Create your account and start chatting instantly.
+          </p>
         </div>
-        {err && <p className='text-red-500'>{"*" + err}</p>}
-        <button className='px-[20px] py-[10px] bg-[#20c7ff] rounded-2xl shadow-gray-400 shadow-lg text-[20px] w-[200px] mt-[20px] font-semibold hover:shadow-inner' disabled={loading}>{loading?"Loading...":"Sign Up"}</button>
-        <p className='cursor-pointer' onClick={()=>navigate("/login")}>Already Have An Account ? <span className='text-[#20c7ff] text-[bold]' >Login</span></p>
-     </form>
-     </div>
-     
+
+        <form
+          className="relative -mt-6 flex flex-col gap-4 px-6 pb-8 sm:px-8"
+          onSubmit={handleSignUp}
+        >
+          <div className="rounded-2xl bg-white p-5 shadow-card">
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-ink-500">
+              Username
+            </label>
+            <input
+              type="text"
+              required
+              placeholder="cool_user"
+              className="input-field"
+              value={userName}
+              onChange={(e) => setUserName(e.target.value)}
+              autoComplete="username"
+            />
+
+            <label className="mb-1.5 mt-4 block text-xs font-semibold uppercase tracking-wide text-ink-500">
+              Email
+            </label>
+            <input
+              type="email"
+              required
+              placeholder="you@example.com"
+              className="input-field"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+            />
+
+            <label className="mb-1.5 mt-4 block text-xs font-semibold uppercase tracking-wide text-ink-500">
+              Password
+            </label>
+            <div className="relative">
+              <input
+                type={show ? "text" : "password"}
+                required
+                minLength={6}
+                placeholder="At least 6 characters"
+                className="input-field pr-12"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-600"
+                onClick={() => setShow((p) => !p)}
+                aria-label={show ? "Hide password" : "Show password"}
+              >
+                {show ? (
+                  <IoEyeOffOutline className="h-5 w-5" />
+                ) : (
+                  <IoEyeOutline className="h-5 w-5" />
+                )}
+              </button>
+            </div>
+
+            {err && (
+              <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+                {err}
+              </p>
+            )}
+
+            <button type="submit" className="btn-primary mt-5 w-full" disabled={loading}>
+              {loading ? "Creating account…" : "Sign Up"}
+            </button>
+          </div>
+
+          <p className="text-center text-sm text-ink-600">
+            Already have an account?{" "}
+            <Link to="/login" className="font-semibold text-brand-600 hover:text-brand-700">
+              Login
+            </Link>
+          </p>
+        </form>
+      </div>
     </div>
-  )
+  );
 }
 
-export default SignUp
+export default SignUp;

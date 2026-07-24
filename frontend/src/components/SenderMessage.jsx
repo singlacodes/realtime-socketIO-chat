@@ -1,39 +1,50 @@
-import React, { useEffect, useRef } from 'react'
-import dp from "../assets/dp.webp"
-import { useSelector } from 'react-redux'
-import { mediaUrl } from '../utils/mediaUrl'
+import React, { useEffect, useRef } from "react";
+import { useSelector } from "react-redux";
+import { mediaUrl } from "../utils/mediaUrl";
+import { formatMessageTime } from "../utils/formatTime";
+import Avatar from "./Avatar";
 
-function SenderMessage({image,message}) {
-  let scroll = useRef()
-  let {userData}=useSelector(state=>state.user)
-  const imageSrc = mediaUrl(image)
-  const avatarSrc = mediaUrl(userData?.image) || dp
-  const hasImage = Boolean(imageSrc && String(imageSrc).trim())
-  const hasMessage = Boolean(message && String(message).trim())
+function SenderMessage({ image, message, createdAt }) {
+  const scroll = useRef();
+  const { userData } = useSelector((state) => state.user);
+  const imageSrc = mediaUrl(image);
+  const hasImage = Boolean(imageSrc && String(imageSrc).trim());
+  const hasMessage = Boolean(message && String(message).trim());
 
-  useEffect(()=>{
-    scroll?.current?.scrollIntoView({behavior:"smooth"})
-  },[message,image])
+  useEffect(() => {
+    scroll?.current?.scrollIntoView({ behavior: "smooth" });
+  }, [message, image]);
 
-  const handleImageScroll=()=>{
-    scroll?.current?.scrollIntoView({behavior:"smooth"})
-  }
-
-  if (!hasImage && !hasMessage) {
-    return null
-  }
+  if (!hasImage && !hasMessage) return null;
 
   return (
-    <div className='flex items-start gap-[10px]' >
-      <div ref={scroll} className='w-fit max-w-[500px] px-[20px] py-[10px]  bg-[rgb(23,151,194)] text-white text-[19px] rounded-tr-none rounded-2xl relative right-0 ml-auto shadow-gray-400 shadow-lg gap-[10px] flex flex-col'>
-        {hasImage && <img src={imageSrc} alt="" className='w-[150px] rounded-lg' onLoad={handleImageScroll}/>}
-        {hasMessage && <span>{message}</span>}
+    <div className="flex animate-fade-in items-end justify-end gap-2">
+      <div
+        ref={scroll}
+        className="max-w-[min(75%,28rem)] rounded-2xl rounded-br-md bg-gradient-to-br from-brand-500 to-brand-600 px-3.5 py-2.5 text-white shadow-soft"
+      >
+        {hasImage && (
+          <img
+            src={imageSrc}
+            alt="Sent"
+            className="mb-1.5 max-h-56 w-full max-w-[220px] rounded-xl object-cover"
+            onLoad={() =>
+              scroll?.current?.scrollIntoView({ behavior: "smooth" })
+            }
+          />
+        )}
+        {hasMessage && (
+          <p className="whitespace-pre-wrap break-words text-[15px] leading-relaxed">
+            {message}
+          </p>
+        )}
+        <p className="mt-1 text-right text-[10px] font-medium text-brand-100">
+          {formatMessageTime(createdAt)}
+        </p>
       </div>
-      <div className='w-[40px] h-[40px] rounded-full overflow-hidden flex justify-center items-center bg-white cursor-pointer shadow-gray-500 shadow-lg ' >
-        <img src={avatarSrc} alt="" className='h-[100%]'/>
-      </div>
+      <Avatar src={userData?.image} size={34} />
     </div>
-  )
+  );
 }
 
-export default SenderMessage
+export default SenderMessage;
