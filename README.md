@@ -39,10 +39,39 @@ npm run dev
 
 Open `http://localhost:5173`.
 
-## Render deploy (important for images)
+## Render deploy
 
-Images fail on Render if the app still stores `http://localhost:8000/public/...` URLs.  
-Use **Cloudinary** (recommended) or set a **public** `SERVER_URL`.
+### Frontend Static Site (critical — fixes CSS/JS 404)
+
+If the browser shows:
+`Refused to apply style... MIME type ('text/plain')`  
+it usually means **assets 404** because the **Publish Directory is wrong**.
+
+In the Render **Static Site** settings:
+
+| Setting | Value |
+|---------|--------|
+| **Root Directory** | `frontend` |
+| **Build Command** | `npm install && npm run build` |
+| **Publish Directory** | `dist` |
+
+**Not** `frontend`, **not** `.`, **not** `build` — Vite outputs to `frontend/dist`.
+
+Environment (build-time):
+
+| Variable | Example |
+|----------|---------|
+| `VITE_SERVER_URL` | `https://realtime-socketio-chat.onrender.com` |
+
+After changing settings: **Clear build cache → Manual Deploy**.
+
+### Backend Web Service
+
+| Setting | Value |
+|---------|--------|
+| **Root Directory** | `backend` |
+| **Build Command** | `npm install` |
+| **Start Command** | `npm start` |
 
 ### Backend env on Render
 
@@ -53,16 +82,9 @@ Use **Cloudinary** (recommended) or set a **public** `SERVER_URL`.
 | `CLOUD_NAME` | Cloudinary cloud name |
 | `API_KEY` | key with **create/upload** permission |
 | `API_SECRET` | matching secret |
-| `CLIENT_URL` | `https://your-frontend.onrender.com` |
-| `SERVER_URL` | `https://your-backend.onrender.com` |
-| `CROSS_SITE_COOKIES` | `true` if FE and BE are different hosts |
+| `CLIENT_URL` | `https://realtime-socketio-chat-mgz8.onrender.com` |
+| `SERVER_URL` | `https://realtime-socketio-chat.onrender.com` |
 | `NODE_ENV` | `production` |
-
-### Frontend build env on Render
-
-| Variable | Example |
-|----------|---------|
-| `VITE_SERVER_URL` | `https://your-backend.onrender.com` |
 
 Rebuild the frontend after changing `VITE_*` vars (they are baked in at build time).
 
