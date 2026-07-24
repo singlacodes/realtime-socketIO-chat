@@ -12,6 +12,7 @@ import ReceiverMessage from './ReceiverMessage';
 import axios from 'axios';
 import { serverUrl } from '../main';
 import { setMessages } from '../redux/messageSlice';
+import { mediaUrl } from '../utils/mediaUrl';
 function MessageArea() {
   let {selectedUser,userData,socket}=useSelector(state=>state.user)
   let dispatch=useDispatch()
@@ -69,7 +70,7 @@ return ()=>socket?.off("newMessage")
                   <IoIosArrowRoundBack className='w-[40px] h-[40px] text-white'/>
            </div>
          <div className='w-[50px] h-[50px] rounded-full overflow-hidden flex justify-center items-center bg-white cursor-pointer shadow-gray-500 shadow-lg' >
-        <img src={ selectedUser?.image || dp} alt="" className='h-[100%]'/>
+        <img src={ mediaUrl(selectedUser?.image) || dp} alt="" className='h-[100%]'/>
         </div>
         <h1 className='text-white font-semibold text-[20px]'>{selectedUser?.name || "user"}</h1>
     </div>

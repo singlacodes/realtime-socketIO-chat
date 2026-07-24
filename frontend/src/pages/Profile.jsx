@@ -7,12 +7,13 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { serverUrl } from '../main';
 import { setUserData } from '../redux/userSlice';
+import { mediaUrl } from '../utils/mediaUrl';
 function Profile() {
     let {userData}=useSelector(state=>state.user)
     let dispatch=useDispatch()
     let navigate=useNavigate()
 let [name,setName]=useState(userData.name || "")
-let [frontendImage,setFrontendImage]=useState(userData.image || dp)
+let [frontendImage,setFrontendImage]=useState(mediaUrl(userData.image) || dp)
 let [backendImage,setBackendImage]=useState(null)
 let image=useRef()
 let [saving,setSaving]=useState(false)

@@ -12,9 +12,13 @@ const safeUnlink = (filePath) => {
   }
 };
 
+const isProduction = () =>
+  process.env.NODE_ENV === "production" || process.env.RENDER === "true";
+
 /**
- * Prefer Cloudinary. If the API key cannot create assets (403 missing permissions),
- * fall back to a local public URL so profile/chat images still work in dev.
+ * Prefer Cloudinary secure_url.
+ * Local /public fallback is only for development (or when SERVER_URL is a public HTTPS host).
+ * Never return http://localhost URLs in production — browsers block them from Render.
  */
 const uploadOnCloudinary = async (filePath) => {
   if (!filePath) {
@@ -28,20 +32,33 @@ const uploadOnCloudinary = async (filePath) => {
   const cloudName = process.env.CLOUD_NAME?.trim();
   const apiKey = process.env.API_KEY?.trim();
   const apiSecret = process.env.API_SECRET?.trim();
-  const baseUrl = (
-    process.env.SERVER_URL || `http://localhost:${process.env.PORT || 8000}`
+
+  // Public backend host for image URLs (never localhost on Render)
+  const publicBase = (
+    process.env.SERVER_URL ||
+    (isProduction() ? "https://realtime-socketio-chat.onrender.com" : "")
   ).replace(/\/$/, "");
+  const fileName = path.basename(filePath);
 
   const toLocalUrl = () => {
-    const fileName = path.basename(filePath);
-    // File already lives under ./public from multer
-    return `${baseUrl}/public/${fileName}`;
+    if (publicBase && !/localhost|127\.0\.0\.1/i.test(publicBase)) {
+      return `${publicBase}/public/${fileName}`;
+    }
+    if (isProduction()) {
+      // Last resort: absolute path on known backend host
+      return `https://realtime-socketio-chat.onrender.com/public/${fileName}`;
+    }
+    const port = process.env.PORT || 8000;
+    return `http://localhost:${port}/public/${fileName}`;
   };
 
   if (!cloudName || !apiKey || !apiSecret) {
-    console.warn(
-      "Cloudinary env missing — serving image from local /public instead"
-    );
+    console.warn("Cloudinary env missing — using local/public URL fallback");
+    if (isProduction() && !publicBase) {
+      console.warn(
+        "Set SERVER_URL to your public backend URL, or fix Cloudinary create permissions."
+      );
+    }
     return toLocalUrl();
   }
 
@@ -74,20 +91,10 @@ const uploadOnCloudinary = async (filePath) => {
 
     console.error("Cloudinary upload error:", message, httpCode || "");
 
-    // Keep the local file and return a local URL so the app still works.
-    // Typical case: API key missing "create" permission.
-    if (
-      httpCode === 403 ||
-      /missing permissions|forbidden|unauthorized|invalid/i.test(message)
-    ) {
-      console.warn(
-        "Falling back to local image URL. Fix Cloudinary API key create permission to use Cloudinary."
-      );
-      return toLocalUrl();
-    }
-
-    // Other errors: still fall back in dev so chat/profile images work
-    console.warn("Falling back to local image URL after Cloudinary failure.");
+    // Keep file for static serving and return a non-localhost URL when possible
+    console.warn(
+      "Falling back to local /public URL. Fix Cloudinary API key CREATE permission for permanent CDN images."
+    );
     return toLocalUrl();
   }
 };

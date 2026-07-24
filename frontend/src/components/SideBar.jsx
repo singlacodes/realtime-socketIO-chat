@@ -8,6 +8,7 @@ import { serverUrl } from '../main';
 import axios from 'axios';
 import { setOtherUsers, setSearchData, setSelectedUser, setUserData } from '../redux/userSlice';
 import { useNavigate } from 'react-router-dom';
+import { mediaUrl } from '../utils/mediaUrl';
 function SideBar() {
     let {userData,otherUsers,selectedUser,onlineUsers,searchData} = useSelector(state=>state.user)
     let [search,setSearch]=useState(false)
@@ -57,7 +58,7 @@ console.log(error)
         }>
      <div className='relative rounded-full bg-white  flex justify-center items-center '>
      <div className='w-[60px] h-[60px]   rounded-full overflow-hidden flex justify-center items-center '>
-     <img src={user.image || dp} alt="" className='h-[100%]'/>
+     <img src={mediaUrl(user.image) || dp} alt="" className='h-[100%]'/>
      </div>
      {onlineUsers?.includes(user._id) &&
      <span className='w-[12px] h-[12px] rounded-full absolute bottom-[6px] right-[-1px] bg-[#3aff20] shadow-gray-500 shadow-md'></span>}
@@ -72,7 +73,7 @@ console.log(error)
    <div className='w-full flex justify-between items-center'>
     <h1 className='text-gray-800 font-bold text-[25px]'>Hii , {userData.name || "user"}</h1>
     <div className='w-[60px] h-[60px] rounded-full overflow-hidden flex justify-center items-center bg-white cursor-pointer shadow-gray-500 shadow-lg' onClick={()=>navigate("/profile")}>
-<img src={userData.image || dp} alt="" className='h-[100%]'/>
+<img src={mediaUrl(userData.image) || dp} alt="" className='h-[100%]'/>
 </div>
    </div>
    <div className='w-full  flex items-center gap-[20px] overflow-y-auto py-[18px]'>
@@ -92,7 +93,7 @@ console.log(error)
     onlineUsers?.includes(user._id) &&
     <div className='relative rounded-full shadow-gray-500 bg-white shadow-lg flex justify-center items-center mt-[10px] cursor-pointer' onClick={()=>dispatch(setSelectedUser(user))}>
     <div className='w-[60px] h-[60px]   rounded-full overflow-hidden flex justify-center items-center '>
-    <img src={user.image || dp} alt="" className='h-[100%]'/>
+    <img src={mediaUrl(user.image) || dp} alt="" className='h-[100%]'/>
     </div>
     <span className='w-[12px] h-[12px] rounded-full absolute bottom-[6px] right-[-1px] bg-[#3aff20] shadow-gray-500 shadow-md'></span>
     </div>
@@ -106,7 +107,7 @@ console.log(error)
     <div className='w-[95%] h-[60px] flex items-center gap-[20px] shadow-gray-500 bg-white shadow-lg rounded-full hover:bg-[#78cae5] cursor-pointer' onClick={()=>dispatch(setSelectedUser(user))}>
     <div className='relative rounded-full shadow-gray-500 bg-white shadow-lg flex justify-center items-center mt-[10px]'>
     <div className='w-[60px] h-[60px]   rounded-full overflow-hidden flex justify-center items-center '>
-    <img src={user.image || dp} alt="" className='h-[100%]'/>
+    <img src={mediaUrl(user.image) || dp} alt="" className='h-[100%]'/>
     </div>
     {onlineUsers?.includes(user._id) &&
     <span className='w-[12px] h-[12px] rounded-full absolute bottom-[6px] right-[-1px] bg-[#3aff20] shadow-gray-500 shadow-md'></span>}
